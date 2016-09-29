@@ -12,6 +12,8 @@ namespace SandBox
         static void Main(string[] args)
         {
             Demo_ExtensionMethods(5);
+
+            PolitelyEndProgram();
         }
 
         /// <summary>
@@ -24,11 +26,12 @@ namespace SandBox
             wordList.Add("Tests");
             wordList.Add("Testing");
 
-            wordList.ElementsLargerThan(characterLength).PrintStringList();
-
-            PolitelyEndProgram();
+            wordList.ElementsLargerThan(characterLength).PrintStringList();            
         }
 
+        /// <summary>
+        /// Prompts user that the program has ended and asks them to press any key to end.
+        /// </summary>
         public static void PolitelyEndProgram() {
             Console.WriteLine("\nProgram is finished running. Press Any Key to End Program...");
             Console.ReadKey(true);
