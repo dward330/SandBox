@@ -4,16 +4,37 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using StringExtensionMethods;
+using System.Windows.Input;
 
 namespace SandBox
 {
+    public delegate void KeyPressedEventHandler(ConsoleKey key, EventArgs e);
+
     class Program
     {
         static void Main(string[] args)
         {
-            Demo_ExtensionMethods(5);
+            Demo_EventHandler();
 
             PolitelyEndProgram();
+        }
+
+        public static void Demo_EventHandler() {
+            ConsoleKeyInfo keyPressedInfo = new ConsoleKeyInfo();
+            KeyboardKey key = new KeyboardKey(ConsoleKey.LeftArrow);
+            key.KeyPressedEvent += new KeyPressedEventHandler(YourKeyWasPressed);
+
+            do
+            {
+                Console.WriteLine("\nEnter a Key: ");
+                keyPressedInfo  = Console.ReadKey();
+                key.KeyPressed(keyPressedInfo.Key);
+            } while (keyPressedInfo.Key != ConsoleKey.Escape);
+        }
+
+        public static void YourKeyWasPressed(ConsoleKey key, EventArgs e)
+        {
+            Console.WriteLine("Your Key was Pressed: "+key.ToString());
         }
 
         /// <summary>
@@ -35,6 +56,22 @@ namespace SandBox
         public static void PolitelyEndProgram() {
             Console.WriteLine("\nProgram is finished running. Press Any Key to End Program...");
             Console.ReadKey(true);
+        }      
+        
+    }
+
+    public class KeyboardKey {
+        public ConsoleKey EventKey = ConsoleKey.Escape;
+        public event KeyPressedEventHandler KeyPressedEvent;
+
+        public KeyboardKey(ConsoleKey key = ConsoleKey.Escape) {
+            EventKey = key;
+        }
+
+        public void KeyPressed(ConsoleKey key, EventArgs e = null) {
+            if (key == EventKey) {
+                KeyPressedEvent(key, e);
+            }
         }
     }
 }
