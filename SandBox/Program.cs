@@ -12,6 +12,7 @@ namespace SandBox
 
     class Program
     {
+        //Main Program Starting Point
         static void Main(string[] args)
         {
             Demo_EntityFramework();
@@ -82,8 +83,7 @@ namespace SandBox
         public static void PolitelyEndProgram() {
             Console.WriteLine("\nProgram is finished running. Press Any Key to End Program...");
             Console.ReadKey(true);
-        }      
-        
+        }              
     }
 
     public class KeyboardKey {
