@@ -23,13 +23,17 @@ namespace SandBox
         /// Demos using the Entity Framework
         /// </summary>
         public static void Demo_EntityFramework() {
-            //Printing the Data from the Database Table
+            //Showing the Data from the Database Table
             using (var data = new ZeroCoolEntities()) {
                 int spacePadding = 15;
 
+                var firstRecord = data.XSDTables.FirstOrDefault<XSDTable>();
+                if (firstRecord != null)
+                    Console.WriteLine(String.Format("{0}{1}{2}", (nameof(firstRecord.Firstname) + "*").PadRight(spacePadding), (nameof(firstRecord.Lastname) + "*").PadRight(spacePadding), (nameof(firstRecord.Age).ToString() + "*").PadRight(spacePadding)));
+
                 var people = data.XSDTables;
                 foreach (XSDTable person in people)
-                    Console.WriteLine(String.Format("{0}{1}{2}",person.Firstname.PadLeft(spacePadding),person.Lastname.PadLeft(spacePadding),person.Age.ToString().PadLeft(spacePadding)));
+                    Console.WriteLine(String.Format("{0}{1}{2}",person.Firstname.PadRight(spacePadding),person.Lastname.PadRight(spacePadding),person.Age.ToString().PadRight(spacePadding)));
             }
         }
 
