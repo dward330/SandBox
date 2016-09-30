@@ -14,11 +14,28 @@ namespace SandBox
     {
         static void Main(string[] args)
         {
-            Demo_EventHandler();
+            Demo_EntityFramework();
 
             PolitelyEndProgram();
         }
 
+        /// <summary>
+        /// Demos using the Entity Framework
+        /// </summary>
+        public static void Demo_EntityFramework() {
+            //Printing the Data from the Database Table
+            using (var data = new ZeroCoolEntities()) {
+                int spacePadding = 15;
+
+                var people = data.XSDTables;
+                foreach (XSDTable person in people)
+                    Console.WriteLine(String.Format("{0}{1}{2}",person.Firstname.PadLeft(spacePadding),person.Lastname.PadLeft(spacePadding),person.Age.ToString().PadLeft(spacePadding)));
+            }
+        }
+
+        /// <summary>
+        /// Demos Create an Event, Raising an Event and then Handling an Event that was raised
+        /// </summary>
         public static void Demo_EventHandler() {
             ConsoleKeyInfo keyPressedInfo = new ConsoleKeyInfo();
             KeyboardKey key = new KeyboardKey(ConsoleKey.LeftArrow);
@@ -32,6 +49,11 @@ namespace SandBox
             } while (keyPressedInfo.Key != ConsoleKey.Escape);
         }
 
+        /// <summary>
+        /// Method that will respond/handle when a KeyPressedEventHandler is raised
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="e"></param>
         public static void YourKeyWasPressed(ConsoleKey key, EventArgs e)
         {
             Console.WriteLine("Your Key was Pressed: "+key.ToString());
