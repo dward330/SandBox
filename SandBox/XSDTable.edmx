@@ -10,8 +10,8 @@
             <PropertyRef Name="Prim" />
           </Key>
           <Property Name="Prim" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
-          <Property Name="Firstname" Type="varchar" MaxLength="200" />
-          <Property Name="Lastname" Type="varchar" MaxLength="200" />
+          <Property Name="Firstname" Type="varchar" MaxLength="100" />
+          <Property Name="Lastname" Type="varchar" MaxLength="100" />
           <Property Name="Age" Type="bigint" />
         </EntityType>
         <EntityContainer Name="ZeroCoolModelStoreContainer">
@@ -26,8 +26,8 @@
             <PropertyRef Name="Prim" />
           </Key>
           <Property Name="Prim" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
-          <Property Name="Firstname" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
-          <Property Name="Lastname" Type="String" MaxLength="200" FixedLength="false" Unicode="false" />
+          <Property Name="Firstname" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="Lastname" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
           <Property Name="Age" Type="Int64" />
         </EntityType>
         <EntityContainer Name="ZeroCoolEntities" annotation:LazyLoadingEnabled="true">

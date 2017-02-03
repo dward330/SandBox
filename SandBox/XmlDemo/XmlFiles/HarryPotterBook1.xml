@@ -1,0 +1,9 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<BookDetails>
+  <!--<Title>Harry Potter and The Sorcerer's Stone</Title>-->
+  <Author>J. K. Rowling</Author>
+  <Publisher>Bloomsbury</Publisher>
+  <NumOfPages>309</NumOfPages>
+  <Character>Harry Potter</Character>
+  <Character>Hermoine Granger</Character>
+</BookDetails> 

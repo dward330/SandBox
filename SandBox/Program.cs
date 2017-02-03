@@ -1,25 +1,96 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using StringExtensionMethods;
 using System.Windows.Input;
+using System.Xml.Serialization;
+using System.Xml;
+using System.Xml.Schema;
+using System.IO;
+using SandBox.XMLDemo;
 
 namespace SandBox
 {
     public delegate void KeyPressedEventHandler(ConsoleKey key, EventArgs e);
+    public delegate double Func_CalcShippingCost(double itemPrice);
 
     class Program
     {
+        //Will Hold all Xml Schema Validation Results
+        private static HashSet<XMLSchemaValidationResult> _xmlSchemaValidationResults = new HashSet<XMLSchemaValidationResult>();
+
         //Main Program Starting Point
         static void Main(string[] args)
         {
-            Demo_EntityFramework();
+            
+            try {
+                //Demo_EntityFramework();
+                //Demo_XMLDeserialization();
+                //Demo_EventHandler();
+                Demo_DelegateChallenge();
+            }
+            catch (Exception e) {
+                Console.WriteLine(String.Format("An Error Occured While Running the Demo!\n\nError:\n\t{0}",e));
+            }
 
             PolitelyEndProgram();
         }
 
+        /// <summary>
+        /// This Demo showcases XML Deserialization
+        /// </summary>
+        public static void Demo_XMLDeserialization() {
+            //Poco to hold Book Detail Information
+            BookDetails bookDetails = null;
+            
+            //First Acquire the Schema (XSD), to be used to verify XML file follows all the rules
+            XmlReaderSettings BookDetailXmlSettings = new XmlReaderSettings();
+            BookDetailXmlSettings.Schemas.Add(null, @"XmlDemo\Schema\BookDetails.xsd");
+            BookDetailXmlSettings.ValidationType = ValidationType.Schema;
+
+            //Point a Reader or Stream to the XML File
+            TextReader textReader = File.OpenText(@"XmlDemo\XmlFiles\HarryPotterBook1.xml");
+
+            //Validate the XML File against the Schema (XSD)
+            BookDetailXmlSettings.ValidationEventHandler += BookDetailXmlSchemaValidationHandler;
+            XmlReader validationReader = XmlReader.Create(@"XmlDemo\XmlFiles\HarryPotterBook1.xml", BookDetailXmlSettings);
+            while (validationReader.Read()) { } //Read the Entire XML Document to Force Validation
+
+            //Serialize/Deserialize the XML File into our Object/POCO (BookDetails)
+            if (Program._xmlSchemaValidationResults.Count == 0)
+                bookDetails = (BookDetails)(new XmlSerializer(typeof(BookDetails))).Deserialize(textReader);
+            else
+            {
+                Console.WriteLine("The Supplied XML File Violated the Schema (XSD) in the following ways:");
+                foreach (XMLSchemaValidationResult result in Program._xmlSchemaValidationResults)
+                    Console.WriteLine(String.Format("{0}:\n\t{1}", result.Severity, result.Message));
+            }
+
+            //Print the Details of the Book, stored in our POCO
+            if (null != bookDetails) {
+                Console.WriteLine("Update: {0}\n\nTitle: {1}\nAuthor: {2}\nPublisher: {3}\nNumber Of Pages: {4}", @"XML Deserialization Complete!"
+                                            ,bookDetails.Title, bookDetails.Author, bookDetails.Publisher, bookDetails.NumOfPages);
+                Console.WriteLine("Character:");
+                foreach (String character in bookDetails.Characters) {
+                    Console.WriteLine(String.Format("\t{0}",character));
+                }
+            }
+        }
+        
+        /// <summary>
+        /// Handles any XML Schema Violations
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private static void BookDetailXmlSchemaValidationHandler(object sender, ValidationEventArgs e)
+        {
+            //Add the Xml Schema Validation Result
+            Program._xmlSchemaValidationResults.Add(new XMLSchemaValidationResult { Severity = XmlSeverityType.Warning, Message = e.Message });
+        }
+                
         /// <summary>
         /// Demos using the Entity Framework
         /// </summary>
@@ -78,12 +149,87 @@ namespace SandBox
         }
 
         /// <summary>
+        /// This Method Demos the use of delegates
+        /// </summary>
+        /// <param name="zoneLocation"></param>
+        /// <param name="itemPrice"></param>
+        public static void Demo_DelegateChallenge()
+        {
+            String zoneLocation = "";
+            Double itemPrice = 0;
+            Func_CalcShippingCost calcShippingCost = null;
+
+            #region Gather information from user
+            Console.WriteLine("Enter a Zone Location: ");
+            zoneLocation = Console.ReadLine();
+            Console.WriteLine("Enter the item Price: ");
+            #endregion
+
+            try
+            {
+                if (Double.TryParse(Console.ReadLine(), out itemPrice))
+                {
+                    switch (zoneLocation.ToLower())
+                    {
+                        case "zone1":
+                            calcShippingCost = Zone1ShippingCost;
+                            break;
+                        case "zone2":
+                            calcShippingCost = Zone2ShippingCost;
+                            break;
+                        case "zone3":
+                            calcShippingCost = Zone3ShippingCost;
+                            break;
+                        case "zone4":
+                            calcShippingCost = Zone4ShippingCost;
+                            break;
+                        default:
+                            Console.WriteLine("You Mentioned an unknown zone.");
+                            break;
+                    }
+
+                    Console.WriteLine("Shipping Cost: " + calcShippingCost(itemPrice));
+                    Console.WriteLine("Final Cost: " + (itemPrice + calcShippingCost(itemPrice)));
+                }
+                else
+                {
+                    Console.WriteLine("Could not parse your item price into a Double!");
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Error Occured!\n" + e);
+            }
+        }
+
+        /// <summary>
         /// Prompts user that the program has ended and asks them to press any key to end.
         /// </summary>
         public static void PolitelyEndProgram() {
             Console.WriteLine("\nProgram is finished running. Press Any Key to End Program...");
             Console.ReadKey(true);
-        }              
+        }
+
+        public static double Zone1ShippingCost(double itemPrice)
+        {
+            return (0.25*itemPrice);
+        }
+
+        public static double Zone2ShippingCost(double itemPrice)
+        {
+            return (0.12*itemPrice+25);
+        }
+
+        public static double Zone3ShippingCost(double itemPrice)
+        {
+            return (0.08*itemPrice);
+        }
+
+        public static double Zone4ShippingCost(double itemPrice)
+        {
+            return (0.04*itemPrice+25);
+        }
+
     }
 
     public class KeyboardKey {
@@ -99,5 +245,14 @@ namespace SandBox
                 KeyPressedEvent(key, e);
             }
         }
+    }
+
+    /// <summary>
+    /// POCO to store a single Xml Validation Result
+    /// </summary>
+    public class XMLSchemaValidationResult
+    {
+        public XmlSeverityType Severity { get; set; }
+        public String Message { get; set; }
     }
 }
